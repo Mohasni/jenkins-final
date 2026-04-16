@@ -1,8 +1,8 @@
-pipeline {
+ pipeline {
       agent any
 
       environment {
-          DOCKER_IMAGE = 'VOTRE_DOCKER_ID/getting-started-app'
+          DOCKER_IMAGE = 'mohasni/getting-started-app'
           DOCKER_TAG = "${env.BUILD_NUMBER}"
       }
 
@@ -16,10 +16,10 @@ pipeline {
 
           stage('Build Docker Image') {
               steps {
-                  script {
-                      def image = docker.build("${env.DOCKER_IMAGE}:${env.DOCKER_TAG}")
-                      image.tag('latest')
-                  }
+                  bat """
+                      docker build -t ${env.DOCKER_IMAGE}:${env.DOCKER_TAG} .
+                      docker tag ${env.DOCKER_IMAGE}:${env.DOCKER_TAG} ${env.DOCKER_IMAGE}:latest
+                  """
               }
           }
 
@@ -31,11 +31,11 @@ pipeline {
                           usernameVariable: 'DOCKER_USER',
                           passwordVariable: 'DOCKER_PASS'
                       )]) {
-                          sh '''
-                              docker login -u $DOCKER_USER -p $DOCKER_PASS
-                              docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
-                              docker push ${DOCKER_IMAGE}:latest
-                          '''
+                          bat """
+                              docker login -u %DOCKER_USER% -p %DOCKER_PASS%
+                              docker push ${env.DOCKER_IMAGE}:${env.DOCKER_TAG}
+                              docker push ${env.DOCKER_IMAGE}:latest
+                          """
                       }
                   }
               }
@@ -43,15 +43,15 @@ pipeline {
 
           stage('Deploy') {
               steps {
-                  sh 'docker-compose up -d'
+                  bat "docker-compose up -d"
               }
           }
       }
 
       post {
           always {
-              sh 'docker-compose down -v 2>/dev/null || true'
-              sh 'docker rmi ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest 2>/dev/null || true'
+              bat "docker-compose down -v 2>NUL"
+              bat "docker rmi ${env.DOCKER_IMAGE}:${env.DOCKER_TAG} ${env.DOCKER_IMAGE}:latest 2>NUL"
               cleanWs()
           }
       }
