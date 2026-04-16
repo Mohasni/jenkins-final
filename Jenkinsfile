@@ -16,7 +16,7 @@ stage('Login to Docker Hub') {
 
                 )]) { 
 
-                    bat 'echo %PASSWORD% | docker login -u $USERNAME --password-stdin' 
+                    bat 'echo %PASSWORD% | docker login -u %USERNAME% --password-stdin' 
 
                 } 
 
