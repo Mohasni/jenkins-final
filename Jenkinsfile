@@ -13,7 +13,7 @@ stage('Login to Docker Hub') {
 
                 withCredentials([usernamePassword( 
 
-                credentialsId: 'docker-hub-credentials', 
+                credentialsId: 'docker-credentials', 
 
                 usernameVariable: 'USERNAME', 
 
