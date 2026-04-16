@@ -22,7 +22,27 @@ pipeline {
                   """
               }
           }
+stage('Login to Docker Hub') { 
 
+            steps { 
+
+                withCredentials([usernamePassword( 
+
+                credentialsId: 'ocker-hub-credentials', 
+
+                usernameVariable: 'USERNAME', 
+
+                passwordVariable: 'PASSWORD' 
+
+                )]) { 
+
+                    bat 'echo $PASSWORD | docker login -u $USERNAME --password-stdin' 
+
+                } 
+
+            } 
+
+        }
           stage('Push to Docker Hub') {
               steps {
                   withCredentials([usernamePassword(
